@@ -1,29 +1,92 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
+  <head>
 
-<head>
-  <meta charset="utf-8">
-  <title>Scott Kottmer</title>
-  <meta name="description" content="personal website of Scott Kottmer">
-  <meta name="author" content="Scott Kottmer">
+    <title>Scott Kottmer | Resume</title>
 
-  <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-</head>
+    .topnav {
+      overflow: hidden;
+      background-color: #333;
+    }
 
-<body>
-  <div id="header">
-    <h1>Scott Kottmer</h1>
-  </div>
-  <div id="navbar">
-    <h2><a title="home" href="index.html">Home</a></h2>
-    <h2><a title="about" href="resume.html">Resume</a></h2>
-    <h2><a title="about" href="blog.html">Blog</a></h2>
-    <h2><a title="about" href="projects.html">Projects</a></h2>
-    <h2><a title="about" href="contact.html">Contact</a></h2>
-  </div>
-  <div id="content">
-    <h1>Resume</h1>
+    .topnav a {
+      float: left;
+      display: block;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    .topnav a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    .topnav a.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .topnav .icon {
+      display: none;
+    }
+
+    @media screen and (max-width: 600px) {
+      .topnav a:not(:first-child) {display: none;}
+      .topnav a.icon {
+        float: right;
+        display: block;
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      .topnav.responsive {position: relative;}
+      .topnav.responsive .icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      .topnav.responsive a {
+        float: none;
+        display: block;
+        text-align: left;
+      }
+    }
+    </style>
+  </head>
+
+  <body>
+
+    <div style="padding-left:16px">
+      <h1>Scott Kottmer</h1>
+    </div>
+
+    <div class="topnav" id="myTopnav">
+      <a href="index.html">Home</a>
+      <a href="blog.html">Blog</a>
+      <a href="projects.html">Projects</a>
+      <a href="resume.html" class="active">Resume</a>
+      <a href="contact.html">Contact</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </div>
+
+    <div style="padding-left:16px">
+      <h2>Resume</h2>
+    </div>
+
+    <div style="padding-left:16px">
       <h3><strong><em>Education</em></strong></h3>
         <p>The University of Arizona, Tucson, AZ</p>
         <p><strong>Bachelor of Science in Optical Sciences and Engineering</strong>, May 2019</p>
@@ -65,8 +128,8 @@
           <ul>
             <li>Administrate and maintain computer labs on campus, troubleshoot client technical problems</li>
           </ul>
-      <h3><strong><em>Side Projects</em></strong></h3>
-        <h4>>McGuire New Venture Development Program, Participant <em>(August 2018 - May 2019)</em></h4>
+      <h3><strong><em>Extracurriculars</em></strong></h3>
+        <h4>McGuire New Venture Development Program, Participant <em>(August 2018 - May 2019)</em></h4>
           <ul>
             <li>Designing and constructing a wearable EKG device that is comfortable, continuous, and medical grade</li>
             <li>Founding a scalable start up (as Head of Technology) within a year through the Eller College of Management</li>
@@ -79,6 +142,18 @@
             <li>Part of the Outreach Group, going into the community and schools to teach optics</li>
             <li>Participated in the organization of Laser Fun Day through building demos and volunteering</li>
           </ul>
-  </div>
-</body>
+    </div>
+
+    <script>
+    function myFunction() {
+      var x = document.getElementById("myTopnav");
+      if (x.className === "topnav") {
+        x.className += " responsive";
+      } else {
+        x.className = "topnav";
+      }
+    }
+    </script>
+
+  </body>
 </html>
