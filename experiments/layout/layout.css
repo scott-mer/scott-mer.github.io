@@ -1,0 +1,89 @@
+body {
+    background-color: white;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0; /* Add this to remove any default margin */
+    overflow: hidden; /* Add this to prevent scrollbars */
+}
+
+#toolbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px;
+    text-align: center;
+    z-index: 10;
+}
+
+#lens-diagram-container {
+    width: 99vw;
+    height: calc(100vh - 50px); /* Adjust for toolbar height */
+    border: 1px solid black;
+    position: relative;
+    background: radial-gradient(circle, grey 1px, transparent 1px);
+    background-size: 20px 20px;
+    margin: 0 auto; /* Center the container horizontally */
+    display: block; /* Ensure the container is treated as a block-level element */
+}
+
+button, select {
+    margin: 5px;
+    padding: 10px;
+    color: white;
+    background-color: #333;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover, select:hover {
+    background-color: #555;
+}
+
+.optical-element {
+    position: absolute;
+    cursor: move;
+    touch-action: none;
+}
+
+.concave-lens {
+    width: 20px;
+    height: 80px;
+    background-color: #6495ED;
+    clip-path: path('M 0 0 Q 10 40 0 80 L 20 80 Q 10 40 20 0 Z');
+}
+
+.convex-lens {
+    width: 20px;
+    height: 80px;
+    background-color: #6495ED;
+    clip-path: ellipse(50% 50% at 50% 50%);
+}
+
+.mirror {
+    background-color: gray;
+    width: 10px;
+    height: 80px;
+}
+
+.source {
+    background-color: green;
+    width: 10px;
+    height: 80px;
+}
+
+.detector {
+    background-color: red;
+    width: 10px;
+    height: 80px;
+}
+
+.beam {
+    position: absolute;
+    height: 25px;  /* Thicker beam */
+    background: red;
+    width: 100%;  /* Full width of the container */
+    transform-origin: left center;  /* Origin for left emission */
+    opacity: 50%;
+    z-index: -1;  /* Ensure the beam is behind all elements */
+}

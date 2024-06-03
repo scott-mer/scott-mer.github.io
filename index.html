@@ -1,19 +1,68 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>scottmer</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hi im scottmer</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            border-bottom: 2px solid white;
+            padding-bottom: 10px;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .section a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .section a:hover {
+            text-decoration: underline;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+    </style>
 </head>
 <body>
-<div id="wrapper">
-    <canvas id="gameCanvas"></canvas>
-    <div id="overlayText">
-        <h1>hi im scottmer</h1>
-        <p>i build things</p>
+    <div class="container">
+        <div class="nav">
+            <a href="#about">About Me</a>
+            <a href="#tools">Experiments</a>
+        </div>
+        <div id="about" class="section">
+            <h1>About Me</h1>
+            <p>
+                Hi, I'm scottmer! I like to build things and bear down and solve big problems. I plan to post things I build to this website, because social media ain't it.
+            </p>
+        </div>
+        <div id="tools" class="section">
+            <h1>Experiments</h1>
+            <a href="experiments/conway/conway.html">conways game of life</a>
+            <br>
+            <a href="experiments/layout/layout.html">lens layout tool</a>
+        </div>
     </div>
-</div>
-<script src="conway.js"></script>
 </body>
 </html>
