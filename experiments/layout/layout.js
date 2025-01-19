@@ -2,6 +2,8 @@ let placingElement = null;
 let draggingElement = null;
 let offsetX, offsetY;
 let isDragging = false;
+let rayStartElement = null;
+let rayEndElement = null;
 
 function startPlacingElement(type) {
     if (placingElement) {
@@ -126,6 +128,9 @@ document.addEventListener('DOMNodeInserted', (event) => {
     if (event.target.classList.contains('optical-element')) {
         makeDraggable(event.target);
         makeDeletable(event.target);
+    } else if (event.target.classList.contains('optical-ray')) {
+        makeDraggable(event.target);
+        makeDeletable(event.target);
     }
 });
 
@@ -139,22 +144,86 @@ function addElement(type) {
     makeDraggable(element);
 }
 
+function addWindow() {
+    addElement("clear window")
+}
+
+function addFlatMirror() {
+    addElement("reflective flat-mirror")
+}
+
+function addStop() {
+    addElement("opaque stop")
+}
+
 function addConcaveLens() {
-    addElement('concave-lens');
+    addElement('clear concave-lens');
 }
 
 function addConvexLens() {
-    addElement('convex-lens');
+    addElement('clear convex-lens');
 }
 
-function addMirror() {
-    addElement('mirror');
+function addConcaveMirror() {
+    addElement('reflective concave-mirror');
 }
 
-function addSource() {
-    addElement('source');
+function addConvexMirror() {
+    addElement('reflective convex-mirror');
 }
 
-function addDetector() {
-    addElement('detector');
+function addRay() {
+    document.addEventListener('click', handleRayClick);
+}
+
+function handleRayClick(event) {
+    const target = event.target;
+
+    if (target.classList.contains('optical-element')) {
+        if (!rayStartElement) {
+            rayStartElement = target;
+        } else if (!rayEndElement) {
+            rayEndElement = target;
+
+            drawRay(rayStartElement, rayEndElement);
+
+            rayStartElement = null;
+            rayEndElement = null;
+            document.removeEventListener('click', handleRayClick);
+        }
+    }
+}
+
+function drawRay(startElement, endElement) {
+    const container = document.getElementById('lens-diagram-container');
+    const startRect = startElement.getBoundingClientRect();
+    const endRect = endElement.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    const startX = startRect.left + startRect.width / 2 - containerRect.left;
+    const startY = startRect.top + startRect.height / 2 - containerRect.top;
+    const endX = endRect.left + endRect.width / 2 - containerRect.left;
+    const endY = endRect.top + endRect.height / 2 - containerRect.top;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    const ray = document.createElement('div');
+    ray.className = 'ray';
+    ray.style.position = 'absolute';
+    ray.style.left = `${startX}px`;
+    ray.style.top = `${startY}px`;
+    ray.style.width = `${length}px`;
+    ray.style.height = `2px`; // Thickness of the ray
+    ray.style.backgroundColor = 'yellow';
+    ray.style.transformOrigin = '0 50%';
+    ray.style.transform = `rotate(${angle}deg)`;
+    ray.setAttribute('data-rotation', angle);
+    ray.setAttribute('data-scale', 1);
+
+    container.appendChild(ray);
+    makeDraggable(ray);
+    makeDeletable(ray);
 }

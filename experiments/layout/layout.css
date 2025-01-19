@@ -19,7 +19,6 @@ body {
 #lens-diagram-container {
     width: 99vw;
     height: calc(100vh - 50px); /* Adjust for toolbar height */
-    border: 1px solid black;
     position: relative;
     background: radial-gradient(circle, grey 1px, transparent 1px);
     background-size: 20px 20px;
@@ -44,46 +43,67 @@ button:hover, select:hover {
     position: absolute;
     cursor: move;
     touch-action: none;
+    transition: filter 0.1s;
+}
+
+.optical-element:hover {
+    filter: brightness(1.2)
+}
+
+.clear {
+    background-color: #6495ED;
+}
+
+.reflective {
+    background-color: silver;
+}
+
+.opaque {
+    background-color: black;
+}
+
+.window {
+    width: 20px;
+    height: 80px;
+    clip-path: polygon(100% 100, 100% 100%, 100% 100%, 100 100%);
+}
+
+.flat-mirror {
+    width: 20px;
+    height: 80px;
+    clip-path: polygon(100% 100, 100% 100%, 100% 100%, 100 100%);
+}
+
+.stop {
+    width: 20px;
+    height: 80px;
+    clip-path: polygon(100% 100, 100% 100%, 100% 100%, 100 100%);
 }
 
 .concave-lens {
-    width: 20px;
+    width: 100px;
     height: 80px;
-    background-color: #6495ED;
     clip-path: path('M 0 0 Q 10 40 0 80 L 20 80 Q 10 40 20 0 Z');
 }
 
 .convex-lens {
     width: 20px;
     height: 80px;
-    background-color: #6495ED;
     clip-path: ellipse(50% 50% at 50% 50%);
 }
 
-.mirror {
-    background-color: gray;
-    width: 10px;
+.concave-mirror {
+    width: 100px;
     height: 80px;
+    clip-path: path('M 0 0 Q 20 40 0 80 L 20 80 L 20 0 Z');
 }
 
-.source {
-    background-color: green;
-    width: 10px;
+.convex-mirror {
+    width: 100px;
     height: 80px;
+    clip-path: path('M 20 0 Q 0 40 20 80 L 30 80 L 30 0 L 20 0 Z');
 }
 
-.detector {
-    background-color: red;
-    width: 10px;
-    height: 80px;
-}
-
-.beam {
-    position: absolute;
-    height: 25px;  /* Thicker beam */
-    background: red;
-    width: 100%;  /* Full width of the container */
-    transform-origin: left center;  /* Origin for left emission */
-    opacity: 50%;
-    z-index: -1;  /* Ensure the beam is behind all elements */
+.ray {
+    background-color: yellow;
 }
