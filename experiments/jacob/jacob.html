@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Skiing Pixel Game</title>
+  <style>
+    body {
+      margin: 0;
+      /* Blue-white gradient, light blue on the bottom */
+      background: linear-gradient(to top, #add8e6, #ffffff);
+      overflow: hidden;
+      position: relative;
+    }
+    canvas {
+      display: block;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+    #restartButton, 
+    #startGameButton {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      font-size: 16px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    #restartButton:hover,
+    #startGameButton:hover {
+      background-color: #0056b3;
+      transform: translateX(-50%) scale(1.05);
+    }
+    /* Initially hide the restart button */
+    #restartButton {
+      display: none;
+      bottom: 20px;
+    }
+    /* Show the start game button on first load */
+    #startGameButton {
+      display: block;
+      bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+
+<!-- Buttons -->
+<button id="restartButton">Restart Game</button>
+<button id="startGameButton">Start Game</button>
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const restartButton = document.getElementById('restartButton');
+  const startGameButton = document.getElementById('startGameButton');
+
+  // Set up canvas size
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Track whether the game is started or not
+  let gameStarted = false;
+
+  // Function to create the initial game state
+  function getInitialState() {
+    return {
+      skierX: canvas.width / 2,
+      skierY: 200,
+      skierSize: 20, 
+      skierSpeed: 5,
+      direction: 0,
+      obstacles: [],
+      particles: [],
+      confetti: [],
+      coins: [],
+      powerUps: [],
+      blackCats: [],
+      lizards: [],
+      score: 0,         // (not currently used in final scoring, but left for reference)
+      coinCount: 0,
+      time: 0,
+      gameOver: false,
+      invulnerable: false,
+      invulnerableTimer: 0,
+      catCount: 0,
+      finalScore: null
+    };
+  }
+
+  // Initial game state
+  let gameState = getInitialState();
+  const topScores = JSON.parse(localStorage.getItem('topScores')) || [];
+
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // Make sure the skier doesn’t get pushed off-canvas
+    if (gameState.skierX + gameState.skierSize > canvas.width) {
+      gameState.skierX = canvas.width - gameState.skierSize;
+    }
+  });
+
+  // Touch controls for mobile devices
+  canvas.addEventListener('touchstart', (e) => {
+    if (!gameStarted || gameState.gameOver) return;
+    const touchX = e.touches[0].clientX;
+    gameState.direction = touchX < canvas.width / 2 ? -1 : 1;
+  });
+
+  canvas.addEventListener('touchend', () => {
+    if (!gameStarted || gameState.gameOver) return;
+    gameState.direction = 0;
+  });
+
+  // Click to emit confetti when game is over
+  canvas.addEventListener('click', (e) => {
+    if (!gameStarted) return;
+    if (gameState.gameOver) {
+      const clickX = e.clientX;
+      const clickY = e.clientY;
+      emitConfetti(clickX, clickY);
+    }
+  });
+
+  // Arrow key controls for PC
+  window.addEventListener('keydown', (e) => {
+    if (!gameStarted || gameState.gameOver) return;
+    if (e.key === 'ArrowLeft') {
+      gameState.direction = -1;
+    } else if (e.key === 'ArrowRight') {
+      gameState.direction = 1;
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (!gameStarted || gameState.gameOver) return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      gameState.direction = 0;
+    }
+  });
+
+  // Small helper to check bounding-box collisions
+  function checkCollision(ax, ay, aw, ah, bx, by, bw, bh) {
+    return (
+      ax < bx + bw &&
+      ax + aw > bx &&
+      ay < by + bh &&
+      ay + ah > by
+    );
+  }
+
+  // Function to create an obstacle
+  function createObstacle() {
+    const baseSize = Math.random() * 40 + 20;
+    // Size grows over time but with a cap
+    const size = baseSize + Math.min(gameState.time / 5, 30);
+    const x = Math.random() * (canvas.width - size);
+    gameState.obstacles.push({ x, y: canvas.height, width: size, height: size });
+  }
+
+  // Function to create a coin
+  function createCoin() {
+    const size = 20;
+    const x = Math.random() * (canvas.width - size);
+    const isSpecial = Math.random() < 0.1; // 10% chance to be special
+    gameState.coins.push({ x, y: canvas.height, width: size, height: size, isSpecial });
+  }
+
+  // Function to create a power-up
+  function createPowerUp() {
+    const size = 25;
+    const x = Math.random() * (canvas.width - size);
+    gameState.powerUps.push({ x, y: canvas.height, width: size, height: size, hue: 0 });
+  }
+
+  // Function to create a black cat (with wider bounding box than 24)
+  function createBlackCat() {
+    const size = 32;  // Slightly bigger box to ensure collisions match rendered emoji
+    const x = Math.random() * (canvas.width - size);
+    gameState.blackCats.push({ x, y: canvas.height, width: size, height: size });
+  }
+
+  // Function to create a lizard
+  function createLizard() {
+    const size = 24;
+    const x = Math.random() * (canvas.width - size);
+    gameState.lizards.push({ x, y: canvas.height, width: size, height: size });
+  }
+
+  // Emit from the top side of the skier and move upward
+  // UPDATED to create white/gray "snowy" particles
+  function createParticle() {
+    const shade = Math.floor(Math.random() * 106 + 150); // range ~150-255
+    gameState.particles.push({
+      x: gameState.skierX + gameState.skierSize / 2,
+      y: gameState.skierY,
+      size: Math.random() * 6 + 2,
+      alpha: 1,
+      dx: (Math.random() - 0.5) * 2,
+      dy: -(Math.random() * 3 + 1),
+      color: `rgba(${shade}, ${shade}, ${shade}, 1)`
+    });
+  }
+
+  // Function to emit confetti
+  function emitConfetti(x, y) {
+    for (let i = 0; i < 50; i++) {
+      gameState.confetti.push({
+        x,
+        y,
+        size: Math.random() * 5 + 2,
+        dx: (Math.random() - 0.5) * 8,
+        dy: (Math.random() - 0.5) * 8,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+      });
+    }
+    // Limit confetti array size
+    if (gameState.confetti.length > 1000) {
+      gameState.confetti.splice(0, gameState.confetti.length - 1000);
+    }
+  }
+
+  // Update particles
+  function updateParticles() {
+    for (let i = gameState.particles.length - 1; i >= 0; i--) {
+      const particle = gameState.particles[i];
+      particle.x += particle.dx;
+      particle.y += particle.dy;
+      particle.size -= 0.1;
+      particle.alpha -= 0.02;
+
+      if (particle.alpha <= 0 || particle.size <= 0) {
+        gameState.particles.splice(i, 1);
+      }
+    }
+  }
+
+  // Update confetti
+  function updateConfetti() {
+    for (let i = gameState.confetti.length - 1; i >= 0; i--) {
+      const piece = gameState.confetti[i];
+      piece.x += piece.dx;
+      piece.y += piece.dy;
+      piece.dx *= 0.99;
+      piece.dy *= 0.99;
+
+      if (
+        piece.y > canvas.height ||
+        piece.x < 0 ||
+        piece.x > canvas.width
+      ) {
+        gameState.confetti.splice(i, 1);
+      }
+    }
+  }
+
+  // End-game messages
+  function getEndGameMessage(score) {
+    if (score >= 42000) return "🥜🥜🥜🥜🥜";
+    if (score >= 20000) return "beyond comprehension";
+    if (score >= 10000) return "HOLY FUCK";
+    if (score >= 5000)  return "MASSIVE 🥜";
+    if (score >= 1000)  return "BIG 🥜";
+    if (score >= 100)   return "Oh, you're a beast!";
+    return "Get well soon";
+  }
+
+  // Activate invulnerability
+  function activateInvulnerability() {
+    gameState.invulnerable = true;
+    gameState.invulnerableTimer = 10; // 10 seconds
+  }
+
+  // Save score to localStorage
+  function saveScore(score) {
+    topScores.push(score);
+    topScores.sort((a, b) => b - a);
+    if (topScores.length > 5) topScores.pop();
+    localStorage.setItem('topScores', JSON.stringify(topScores));
+  }
+
+  // Main update function
+  function update() {
+    // If game not started, do nothing except possibly confetti
+    if (!gameStarted) return;
+
+    // If game is over, only update confetti
+    if (gameState.gameOver) {
+      updateConfetti();
+      return;
+    }
+
+    // Update skier position based on direction
+    gameState.skierX += gameState.direction * gameState.skierSpeed;
+
+    // Boundary checks
+    if (gameState.skierX < 0) {
+      gameState.skierX = 0;
+    }
+    if (gameState.skierX > canvas.width - gameState.skierSize) {
+      gameState.skierX = canvas.width - gameState.skierSize;
+    }
+
+    // Speed multiplier increases over time
+    const speedMultiplier = Math.min(1 + gameState.time / 200, 2.5);
+
+    // Update obstacles
+    for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
+      const obstacle = gameState.obstacles[i];
+      obstacle.y -= 3 * speedMultiplier;
+
+      // Remove if off-screen
+      if (obstacle.y + obstacle.height < 0) {
+        gameState.obstacles.splice(i, 1);
+        continue;
+      }
+
+      // Collision detection (only if not invulnerable)
+      if (
+        !gameState.invulnerable && 
+        checkCollision(
+          gameState.skierX, gameState.skierY, 
+          gameState.skierSize, gameState.skierSize, 
+          obstacle.x, obstacle.y, 
+          obstacle.width, obstacle.height
+        )
+      ) {
+        gameState.gameOver = true;
+        // Final score includes catCount * 500
+        const totalScore = Math.floor(gameState.time * gameState.coinCount + gameState.catCount * 500);
+        gameState.finalScore = totalScore;
+        saveScore(totalScore);
+
+        restartButton.style.display = 'block';
+      }
+    }
+
+    // Update coins
+    for (let i = gameState.coins.length - 1; i >= 0; i--) {
+      const coin = gameState.coins[i];
+      coin.y -= 3 * speedMultiplier;
+
+      if (coin.y + coin.height < 0) {
+        gameState.coins.splice(i, 1);
+        continue;
+      }
+
+      // Collision with skier
+      if (
+        checkCollision(
+          gameState.skierX, gameState.skierY, 
+          gameState.skierSize, gameState.skierSize, 
+          coin.x, coin.y, 
+          coin.width, coin.height
+        )
+      ) {
+        gameState.coins.splice(i, 1);
+        gameState.coinCount += coin.isSpecial ? 10 : 1;
+      }
+    }
+
+    // Update power-ups
+    for (let i = gameState.powerUps.length - 1; i >= 0; i--) {
+      const powerUp = gameState.powerUps[i];
+      powerUp.y -= 3 * speedMultiplier;
+      powerUp.hue = (powerUp.hue + 2) % 360; // spin color
+
+      if (powerUp.y + powerUp.height < 0) {
+        gameState.powerUps.splice(i, 1);
+        continue;
+      }
+
+      // Collision with skier
+      if (
+        checkCollision(
+          gameState.skierX, gameState.skierY, 
+          gameState.skierSize, gameState.skierSize, 
+          powerUp.x, powerUp.y, 
+          powerUp.width, powerUp.height
+        )
+      ) {
+        gameState.powerUps.splice(i, 1);
+        activateInvulnerability();
+      }
+    }
+
+    // Update black cats
+    for (let i = gameState.blackCats.length - 1; i >= 0; i--) {
+      const cat = gameState.blackCats[i];
+      cat.y -= 3 * speedMultiplier;
+
+      if (cat.y + cat.height < 0) {
+        gameState.blackCats.splice(i, 1);
+        continue;
+      }
+
+      // Collision with skier
+      if (
+        checkCollision(
+          gameState.skierX, gameState.skierY, 
+          gameState.skierSize, gameState.skierSize, 
+          cat.x, cat.y, 
+          cat.width, cat.height
+        )
+      ) {
+        gameState.blackCats.splice(i, 1);
+        gameState.catCount++;
+      }
+    }
+
+    // Update lizards
+    for (let i = gameState.lizards.length - 1; i >= 0; i--) {
+      const lizard = gameState.lizards[i];
+      lizard.y -= 3 * speedMultiplier;
+
+      if (lizard.y + lizard.height < 0) {
+        gameState.lizards.splice(i, 1);
+        continue;
+      }
+
+      // Collision with skier
+      if (
+        checkCollision(
+          gameState.skierX, gameState.skierY, 
+          gameState.skierSize, gameState.skierSize, 
+          lizard.x, lizard.y, 
+          lizard.width, lizard.height
+        )
+      ) {
+        // Immediately send user to link
+        window.location.href = "https://youtu.be/kGOQfLFzJj8?si=UaMCQMEGMruPqTl7";
+      }
+    }
+
+    // -- Spawn logic with increased frequencies for coins and cats --
+    if (Math.random() < 0.02) createObstacle();
+    if (Math.random() < 0.02) createCoin();
+    if (Math.random() < 0.001) createPowerUp();
+    if (Math.random() < 0.001) createBlackCat();
+    if (Math.random() < 0.00005) createLizard();
+
+    // Create and update particles
+    createParticle();
+    updateParticles();
+
+    // Update invulnerability timer
+    if (gameState.invulnerable) {
+      gameState.invulnerableTimer -= 0.016;
+      if (gameState.invulnerableTimer <= 0) {
+        gameState.invulnerable = false;
+        gameState.invulnerableTimer = 0;
+      }
+    }
+
+    // Increment game time (approx ~60fps)
+    gameState.time += 0.016;
+  }
+
+  // Draw all game elements
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!gameStarted) {
+      return; 
+    }
+
+    // Draw skier
+    ctx.fillStyle = gameState.invulnerable ? 'rgba(0, 255, 255, 0.7)' : 'black';
+    ctx.fillRect(gameState.skierX, gameState.skierY, gameState.skierSize, gameState.skierSize);
+
+    // Draw obstacles
+    ctx.fillStyle = 'gray';
+    gameState.obstacles.forEach(obstacle => {
+      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    });
+
+    // Draw coins
+    gameState.coins.forEach(coin => {
+      ctx.fillStyle = coin.isSpecial ? '#FF69B4' : 'gold';
+      ctx.beginPath();
+      ctx.arc(
+        coin.x + coin.width / 2, 
+        coin.y + coin.height / 2, 
+        coin.width / 2, 
+        0, 
+        Math.PI * 2
+      );
+      ctx.fill();
+    });
+
+    // Draw power-ups
+    gameState.powerUps.forEach(powerUp => {
+      ctx.fillStyle = `hsl(${powerUp.hue}, 100%, 50%)`;
+      ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+    });
+
+    // Draw black cats (as an emoji)
+    ctx.font = '24px serif';
+    ctx.textBaseline = 'top';
+    gameState.blackCats.forEach(cat => {
+      ctx.fillText('🐈‍⬛', cat.x, cat.y);
+      // NOTE: Debug rectangle has been removed
+    });
+
+    // Draw lizards (emoji)
+    gameState.lizards.forEach(lizard => {
+      ctx.fillText('🦎', lizard.x, lizard.y);
+    });
+
+    // Draw particles
+    gameState.particles.forEach(particle => {
+      ctx.fillStyle = particle.color;
+      ctx.globalAlpha = particle.alpha;
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+    });
+
+    // Draw confetti
+    if (gameState.gameOver && gameState.finalScore >= 42000) {
+      // Draw peanuts if final score >= 42000
+      gameState.confetti.forEach(piece => {
+        ctx.font = piece.size * 2 + 'px serif'; 
+        ctx.fillText('🥜', piece.x, piece.y);
+      });
+    } else {
+      // Otherwise, draw colored squares
+      gameState.confetti.forEach(piece => {
+        ctx.fillStyle = piece.color;
+        ctx.fillRect(piece.x, piece.y, piece.size, piece.size);
+      });
+    }
+
+    // HUD
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 24px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`⏱️ ${Math.floor(gameState.time)}s`, 20, 30);
+    ctx.fillText(`💰 ${gameState.coinCount}`, 20, 60);
+    // Cat count
+    ctx.fillText(`🐈‍⬛ ${gameState.catCount}`, 20, 90);
+
+    // Draw invulnerability timer if active
+    if (gameState.invulnerable) {
+      ctx.fillStyle = '#FF69B4';
+      ctx.font = 'bold 24px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`🛡️ ${gameState.invulnerableTimer.toFixed(1)}s`, canvas.width - 20, 30);
+    }
+
+    // Game over screen
+    if (gameState.gameOver) {
+      const finalScore = gameState.finalScore;
+      const endMessage = getEndGameMessage(finalScore);
+
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 36px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(endMessage, canvas.width / 2, canvas.height / 2 - 50);
+      ctx.fillText(`❤️ Jacob ❤️`, canvas.width / 2, canvas.height / 2 - 10);
+
+      ctx.font = '24px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+      ctx.fillText(`Total Score: ${finalScore}`, canvas.width / 2, canvas.height / 2 + 30);
+
+      ctx.font = '20px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+      ctx.fillText(`Top Scores:`, canvas.width / 2, canvas.height / 2 + 70);
+      topScores.forEach((score, index) => {
+        ctx.fillText(`${index + 1}. ${score}`, canvas.width / 2, canvas.height / 2 + 100 + index * 25);
+      });
+    }
+  }
+
+  // Reset the game state
+  function resetGame() {
+    gameState = getInitialState();
+    restartButton.style.display = 'none';
+  }
+
+  // Restart button
+  restartButton.addEventListener('click', () => {
+    resetGame();
+    // IMPORTANT: set gameStarted to true so the game actually resumes
+    gameStarted = true;
+  });
+
+  // Start game button logic
+  startGameButton.addEventListener('click', () => {
+    startGameButton.style.display = 'none';
+    gameStarted = true;
+  });
+
+  // Main game loop
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // Kick off the rendering loop
+  loop();
+</script>
+</body>
+</html>
