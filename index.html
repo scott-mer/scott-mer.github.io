@@ -1,72 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hi im scottmer</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1, h2 {
-            border-bottom: 2px solid white;
-            padding-bottom: 10px;
-        }
-        .nav {
-            margin-bottom: 20px;
-        }
-        .nav a {
-            color: white;
-            text-decoration: none;
-            margin-right: 20px;
-        }
-        .nav a:hover {
-            text-decoration: underline;
-        }
-        .section a {
-            color: white;
-            text-decoration: none;
-            margin-right: 20px;
-        }
-        .section a:hover {
-            text-decoration: underline;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-    </style>
+    <title>scottmer</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="container">
-        <div class="nav">
-            <a href="#about">About me</a>
-            <a href="#tools">Stuff I've built</a>
+
+<body class="dark">
+    <button class="toggle-btn" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+        <!-- Moon icon (for light mode) -->
+        <svg class="moon-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <!-- Sun icon (for dark mode) -->
+        <svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+        </svg>
+    </button>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="typewriter">
+            <span id="text"></span><span class="cursor"></span>
         </div>
-        <div id="about" class="section">
-            <h1>About Me</h1>
-            <p>
-                Hi, I'm scottmer! I build things and bear down to solve big problems. Social media really ain't it, so I prefer to talk about my projects and ideas here.
-            </p>
+
+        <!-- Scroll Arrow (toggles between down and up) -->
+        <div class="scroll-arrow" id="scroll-arrow" onclick="toggleScroll()" aria-label="Scroll">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" />
+            </svg>
         </div>
-        <div id="tools" class="section">
-            <h1>Stuff I've built</h1>
-            <a href="experiments/conway/conway.html">Conways game of life</a>
-            <br>
-            <a href="experiments/layout/layout.html">Lens layout tool</a>
-            <br>
-            <a href="https://github.com/scott-mer/tide_clock">Tide clock</a>
-            <br>
-            <a href="experiments/jacob/jacob.html">a game for jacob and others</a>
-        </div>
-    </div>
+    </section>
+
+    <!-- Pages Navigation -->
+    <section class="pages-nav" id="pages-nav">
+        <a href="pages/about.html" class="page-link">about me</a>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- DIRECTORY_START -->
+    <section class="directory" id="directory">
+        <ul class="directory-list">
+            <li class="directory-item">
+                <div class="directory-info">
+                    <a href="posts/jacob/jacob.html">a game for jacob</a>
+                <span class="description">A fun skiing pixel game where you dodge obstacles, collect coins, and find black cats. Look for the lizard Easter egg! Made for Jacob when he was hurt and couldn't go skiing!</span>
+                </div>
+                <span class="date">Jan 27, 2025</span>
+            </li>
+            <li class="directory-item">
+                <div class="directory-info">
+                    <a href="posts/layout/layout.html">lens layout tool</a>
+                <span class="description">An interactive optical lens layout tool for designing and visualizing optical systems with mirrors, lenses, and rays. Incomplete, I gave up on it.</span>
+                </div>
+                <span class="date">Jun 02, 2024</span>
+            </li>
+            <li class="directory-item">
+                <div class="directory-info">
+                    <a href="posts/conway/conway.html">conways game of life</a>
+                <span class="description">Conway's Game of Life is a cellular automaton devised by the British mathematician John Horton Conway in 1970. This is my attempt to show it off in the browser. If you click, you create a glider!</span>
+                </div>
+                <span class="date">Oct 14, 2023</span>
+            </li>
+        </ul>
+    </section>
+    <!-- DIRECTORY_END -->
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('light')) {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.classList.remove('light', 'dark');
+            document.body.classList.add(savedTheme);
+        }
+
+        // Typewriter effect
+        const text = "hi i'm scottmer!";
+        const textElement = document.getElementById('text');
+        let index = 0;
+
+        function typeWriter() {
+            if (index < text.length) {
+                textElement.textContent += text.charAt(index);
+                index++;
+                setTimeout(typeWriter, 100);
+            }
+        }
+
+        // Check if user is returning from another page on this site
+        const hasVisited = sessionStorage.getItem('hasVisitedIndex');
+        const referrer = document.referrer;
+        const isInternalNavigation = referrer && referrer.includes(window.location.hostname) && !referrer.endsWith('index.html');
+
+        if (hasVisited || isInternalNavigation) {
+            // Returning visitor: show text immediately and scroll down
+            textElement.textContent = text;
+            sessionStorage.setItem('hasVisitedIndex', 'true');
+            // Scroll to pages section after a brief moment
+            setTimeout(() => {
+                const pagesNav = document.getElementById('pages-nav');
+                if (pagesNav) {
+                    pagesNav.scrollIntoView({ behavior: 'auto' });
+                }
+            }, 50);
+        } else {
+            // First visit: start typing after a brief delay
+            sessionStorage.setItem('hasVisitedIndex', 'true');
+            setTimeout(typeWriter, 500);
+        }
+
+        // Scroll toggle functionality
+        let isScrolledDown = false;
+        const scrollArrow = document.getElementById('scroll-arrow');
+
+        function toggleScroll() {
+            if (isScrolledDown) {
+                // Scroll to top and flip arrow down
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                isScrolledDown = false;
+                scrollArrow.classList.remove('flipped');
+            } else {
+                // Scroll to pages section and flip arrow up
+                const pagesNav = document.getElementById('pages-nav');
+                if (pagesNav) {
+                    pagesNav.scrollIntoView({ behavior: 'smooth' });
+                }
+                isScrolledDown = true;
+                scrollArrow.classList.add('flipped');
+            }
+        }
+
+        // Also update arrow direction based on scroll position (for manual scrolling)
+        function updateArrowDirection() {
+            const scrollThreshold = 100; // pixels from top
+            if (window.scrollY > scrollThreshold) {
+                if (!isScrolledDown) {
+                    isScrolledDown = true;
+                    scrollArrow.classList.add('flipped');
+                }
+            } else {
+                if (isScrolledDown) {
+                    isScrolledDown = false;
+                    scrollArrow.classList.remove('flipped');
+                }
+            }
+        }
+
+        window.addEventListener('scroll', updateArrowDirection);
+
+        // Sync arrow state on page load
+        updateArrowDirection();
+    </script>
 </body>
+
 </html>

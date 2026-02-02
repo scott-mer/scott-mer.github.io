@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>about me - scottmer</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .about-content {
+            max-width: 800px;
+            padding: 40px 20px;
+            margin: 0 auto;
+        }
+
+        .about-content h1 {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: inherit;
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body class="dark">
+    <button class="toggle-btn" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+        <!-- Moon icon (for light mode) -->
+        <svg class="moon-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <!-- Sun icon (for dark mode) -->
+        <svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+        </svg>
+    </button>
+
+    <div class="about-content">
+        <a href="../index.html" class="back-link">← back home</a>
+        <h1>about me</h1>
+        <p>
+            Hi, I'm scottmer! I build things and bear down to solve big problems. Social media really ain't it, so I
+            prefer to talk about my projects and ideas here.
+        </p>
+        <p>
+            This is where I share projects, experiments, and things I find interesting.
+        </p>
+        <!-- Add more about yourself here! -->
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('light')) {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.classList.remove('light', 'dark');
+            document.body.classList.add(savedTheme);
+        }
+    </script>
+</body>
+
+</html>
